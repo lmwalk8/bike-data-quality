@@ -1,0 +1,22 @@
+# Conda environment for bike-data-quality (Data Circuit Breaker)
+#
+# Create:  conda env create -f environment.yml
+# Activate: conda activate bike-data-quality
+# Update:   conda env update -f environment.yml --prune
+
+name: bike_data_quality_env
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+
+  # Pip-only packages (use pip section below)
+  - pip:
+    - pandera[polars]   # Data contracts / schema validation with Polars
+    - polars            # DataFrame library (ingest/transform)
+    - requests          # CityBikes API calls
+    - soda-core         # SodaCL checks (checks.yml)
