@@ -1,11 +1,11 @@
 """
-Circuit breaker logic: halts the pipeline when data fails the contract.
+Pipeline breaker logic: halts the pipeline when data fails the expected schema.
 """
 import polars as pl
 
 from pandera.errors import SchemaErrors
 
-from contracts.citybikes_schema_laws import CityBikeSchema
+from validation.citybikes_schema import CityBikeSchema
 
 def run_pipeline(df: pl.DataFrame) -> None:
     """Validate df against CityBikeSchema; exit on failure."""
@@ -18,7 +18,7 @@ def run_pipeline(df: pl.DataFrame) -> None:
         failure_cases = getattr(err, "failure_cases", None)
         if failure_cases is not None:
             try:
-                print(failure_cases[["column", "check", "failure_case"]].head())
+                print(failure_cases[["column", "check", "failure_case"]])
             except Exception:
                 print(failure_cases)
         else:
