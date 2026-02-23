@@ -1,6 +1,6 @@
 """
 Data contract for CityBikes API response (Pandera model).
-Acts as a "bouncer" for ingestion—only data passing this schema is valid.
+Acts as a "bouncer" for ingestion—only data being valid by passing this schema.
 """
 import pandera.polars as pa
 

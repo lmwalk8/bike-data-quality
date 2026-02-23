@@ -24,12 +24,12 @@ def main():
 
     if args.mode == "clean":
         data = fetch_citybike_data()
-        data = transform(data)
         run_pipeline(data)
+        transformed_data = transform(data)
+        print(transformed_data)
     elif args.mode == "faulty":
         data = fetch_citybike_data()
         data = data.with_columns(pl.lit(39).alias("latitude").cast(pl.Float64))
-        data = transform(data)
         run_pipeline(data)
     else:
         raise ValueError(f"Invalid mode: {args.mode}")
