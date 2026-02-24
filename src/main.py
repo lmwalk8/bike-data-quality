@@ -16,17 +16,27 @@ if str(_root) not in sys.path:
 from ingest import fetch_citybike_data
 from transform import transform
 from pipeline_breaker import run_pipeline
+from soda_runner import monitor_raw_data, monitor_transformed_data
 
 def main():
     parser = argparse.ArgumentParser(description="Run the bike data quality pipeline.")
     parser.add_argument("--mode", type=str, default="clean", choices=["clean", "faulty"], help="Run the pipeline in clean or faulty mode.")
+    parser.add_argument("--soda", action="store_true", help="Run Soda Core checks on raw and (if clean) transformed data.")
     args = parser.parse_args()
 
     if args.mode == "clean":
         data = fetch_citybike_data()
         run_pipeline(data)
+        if args.soda:
+            rc = monitor_raw_data(data)
+            if rc != 0:
+                raise SystemExit(f"Soda raw-data checks failed (exit code {rc}).")
         transformed_data = transform(data)
-        print(transformed_data)
+        if args.soda:
+            rc = monitor_transformed_data(transformed_data)
+            if rc != 0:
+                raise SystemExit(f"Soda transformed-data checks failed (exit code {rc}).")
+            print("Soda Core: raw and transformed data checks passed.")
     elif args.mode == "faulty":
         data = fetch_citybike_data()
         data = data.with_columns(pl.lit(39).alias("latitude").cast(pl.Float64))

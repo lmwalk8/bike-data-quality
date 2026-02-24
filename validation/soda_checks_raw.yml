@@ -1,12 +1,15 @@
 # SodaCL checks for CityBikes data (external monitoring).
 # Use with soda-core.
 
-checks for citybikes:
+checks for citybikes_raw:
   - row_count > 0
   - missing_count(name) = 0
   - min(free_bikes) >= 0:
       name: Prevent negative bike counts
+  - min(empty_slots) >= 0:
+      name: Prevent negative empty slots
   - schema:
       warn:
         when wrong column type:
-          latitude: float64
+          latitude: double
+          longitude: double

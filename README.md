@@ -21,7 +21,12 @@ Instead of an ETL pipeline failing silently or bringing bad data further into th
         - `pandera[polars]`: For quality gate checks.
         - `requests`: For getting API data.
         - `sqlalchemy`: For PostgreSQL interactions.
-        - `soda-core`: For further data observability in the future.
+        - `soda-core`: For further data observability.
+        - `soda-core-duckdb`: For DuckDB data adapter in Soda.
+        - `duckdb`: For in-memory database in Soda.
+        - `pyarrow`: For data interchange in Soda/DuckDB.
+        - `pandas`: For Pandas DataFrame conversion in Soda.
+        - `jinja2`: For displaying Soda reports in HTML files.
 - PostgreSQL (database and user set up)
 
 ## Steps for Project Setup:
@@ -41,8 +46,19 @@ source bike_data_quality_env/bin/activate (Linux/macOS) OR bike_data_quality_env
 ```
 
 4. Install all required dependencies:
+
+Pip:
 ```
 pip install -r requirements.txt
+```
+
+OR
+
+Conda:
+```
+# Create: conda env create -f environment.yml
+# Activate: conda activate bike-data-quality
+# Update: conda env update -f environment.yml --prune
 ```
 
 5. Set up required environment variables:
@@ -63,3 +79,10 @@ Unhealthy (inserts incorrect location for bike stations):
 ```
 python src/main.py --mode faulty
 ```
+
+Run with Soda Core checks (raw + transformed data):
+```
+python src/main.py --mode clean --soda
+```
+- **Raw checks** (`validation/soda_checks_raw.yml`): row count, missing values, non-negative counts, schema.
+- **Transformed checks** (`validation/soda_checks_transformed.yml`): same plus no nulls in derived columns (`total_docks`, `availability_pct`), availability in 0–100%, no duplicate stations. Use this to confirm the data has been successfully transformed.

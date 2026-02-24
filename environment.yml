@@ -16,7 +16,12 @@ dependencies:
 
   # Pip-only packages (use pip section below)
   - pip:
-    - pandera[polars]   # Data contracts / schema validation with Polars
-    - polars            # DataFrame library (ingest/transform)
-    - requests          # CityBikes API calls
-    - soda-core         # SodaCL checks (checks.yml)
+    - pandera[polars]>=0.18.0   # Data contracts / schema validation with Polars
+    - polars>=0.20.0            # DataFrame library (ingest/transform)
+    - requests>=2.28.0          # CityBikes API calls
+    - soda-core>=3.5.6          # SodaCL checks (checks.yml)
+    - soda-core-duckdb>=3.5.6   # Adapter for in-memory DataFrames
+    - duckdb>=0.9.0,<1.1.0      # In-memory database for Soda
+    - pyarrow>=14.0.0           # Required by Soda/DuckDB for data interchange
+    - pandas>=2.0.0             # Required by Soda for Pandas DataFrames
+    - jinja2>=3.1.0,<4          # Template engine for HTML reports

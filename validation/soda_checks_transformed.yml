@@ -1,0 +1,33 @@
+# SodaCL checks for transformed CityBikes data.
+# Run after transform() to verify cleaning and derived columns.
+
+checks for citybikes_transformed:
+  - row_count > 0:
+      name: Transformed data has rows
+  - missing_count(name) = 0
+  - missing_count(free_bikes) = 0
+  - missing_count(empty_slots) = 0
+  - missing_count(latitude) = 0
+  - missing_count(longitude) = 0
+  - missing_count(total_docks) = 0
+  - missing_count(availability_pct) = 0
+  - min(free_bikes) >= 0:
+      name: No negative free_bikes
+  - min(empty_slots) >= 0:
+      name: No negative empty_slots
+  - min(total_docks) > 0:
+      name: Every row has at least one dock (no zero-capacity stations)
+  - min(availability_pct) >= 0:
+      name: Availability percentage non-negative
+  - max(availability_pct) <= 100:
+      name: Availability percentage at most 100
+  - schema:
+      warn:
+        when wrong column type:
+          latitude: double
+          longitude: double
+          total_docks: integer
+          availability_pct: double
+  # No duplicate (name, latitude, longitude) after transform
+  - duplicate_count(name, latitude, longitude) = 0:
+      name: No duplicate stations after transform
