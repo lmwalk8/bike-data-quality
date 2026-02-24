@@ -25,3 +25,6 @@ dependencies:
     - pyarrow>=14.0.0           # Required by Soda/DuckDB for data interchange
     - pandas>=2.0.0             # Required by Soda for Pandas DataFrames
     - jinja2>=3.1.0,<4          # Template engine for HTML reports
+    - python-dotenv>=1.0.0,<2   # Environment variables
+    - sqlalchemy>=2.0.0         # PostgreSQL interactions
+    - psycopg2-binary>=2.9.5    # PostgreSQL driver

@@ -1,13 +1,15 @@
 # Data Engineering Pipeline Breaker: Building Resilient Pipelines
 
-This project performs thorough data quality checks on public biking data for a city. Specifically, it demonstrates a proactive approach to data quality by applying software quality engineering rigor to data pipelines. Instead of trying to catch and fix it later on in the ETL pipeline, this code identifies incorrect data during extraction/ingestion.
+This project performs thorough data quality checks on public biking data for a city. Specifically, it demonstrates a proactive approach to data quality by applying software quality engineering rigor to data pipelines. Instead of trying to catch and fix it later on in the ETL pipeline, this code identifies incorrect data during extraction/ingestion. It also checks that any transformation steps are done correctly on the data before loading it into its final data source for storage.
 
 ## Detailed Project Overview:
 
-Instead of an ETL pipeline failing silently or bringing bad data further into the process, this project uses Python (Polars and Pandera) to implement an alert of poor data while it is being ingested from its original, raw source. Ways it fast-fails and pauses the pipeline execution:
+Instead of an ETL pipeline failing silently or bringing bad data further into the process, this project uses Python (Polars, Pandera, Soda) to implement an alert of poor data while it is being ingested from its original, raw source. Ways it fast-fails and pauses the pipeline execution:
 
 - `Halts execution based on the data schema`: A strict set of rules is defined that the data must satisfy to proceed. This helps to prevent corrupted or illogical data from reaching further steps in the pipeline (e.g production database).
 - `Intercepts schema drift`: Automatically detects when upstream APIs (or other similar data sources) change their structure.
+
+Along with this, it also has additional checks on transform steps done later in the pipeline (after it is confirmed the raw data fits the schema). Using Soda Core in Python, it confirms the data is now cleaned and processed in all the expected ways defined during the transformation. All checks in Soda are written into an HTML report with color-coated outcomes (green=pass, red=fail, yellow=warning).
 
 ## Technical Stack (Prerequisites to Run Project):
 
@@ -27,6 +29,9 @@ Instead of an ETL pipeline failing silently or bringing bad data further into th
         - `pyarrow`: For data interchange in Soda/DuckDB.
         - `pandas`: For Pandas DataFrame conversion in Soda.
         - `jinja2`: For displaying Soda reports in HTML files.
+        - `python-dotenv`: For fetching environment variables.
+        - `sqlalchemy`: For interactions with PostgreSQL database.
+        - `psycopg2-binary`: For driving the PostgreSQL engine.
 - PostgreSQL (database and user set up)
 
 ## Steps for Project Setup:
