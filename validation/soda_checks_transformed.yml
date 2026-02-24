@@ -22,12 +22,24 @@ checks for citybikes_transformed:
   - max(availability_pct) <= 100:
       name: Availability percentage at most 100
   - schema:
+      name: Schema - latitude (double)
       warn:
         when wrong column type:
           latitude: double
+  - schema:
+      name: Schema - longitude (double)
+      warn:
+        when wrong column type:
           longitude: double
+  - schema:
+      name: Schema - total_docks (integer)
+      warn:
+        when wrong column type:
           total_docks: integer
+  - schema:
+      name: Schema - availability_pct (double)
+      warn:
+        when wrong column type:
           availability_pct: double
-  # No duplicate (name, latitude, longitude) after transform
   - duplicate_count(name, latitude, longitude) = 0:
       name: No duplicate stations after transform

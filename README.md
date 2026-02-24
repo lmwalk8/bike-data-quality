@@ -1,6 +1,6 @@
 # Data Engineering Pipeline Breaker: Building Resilient Pipelines
 
-This project performs thorough data quality checks on public biking data for a city. Specifically, it demonstrates a proactive approach to data quality by applying software quality engineering rigor to data pipelines. Instead of trying to catch and fix it later on in the ETL pipeline, this code identifies incorrect data during extraction/ingestion. It also checks that any transformation steps are done correctly on the data before loading it into its final data source for storage.
+This project performs thorough data quality checks on public biking data for a city. Specifically, it demonstrates a proactive approach to data quality by applying software quality engineering rigor to data pipelines. Instead of trying to catch and fix it later on in the ETL pipeline, this code identifies incorrect data during extraction/ingestion. After a clean schema check, it also confirms that any transformation steps are done correctly on the data before loading it into its final data source for storage.
 
 ## Detailed Project Overview:
 
@@ -22,7 +22,6 @@ Along with this, it also has additional checks on transform steps done later in 
         - `polars`: For data processing.
         - `pandera[polars]`: For quality gate checks.
         - `requests`: For getting API data.
-        - `sqlalchemy`: For PostgreSQL interactions.
         - `soda-core`: For further data observability.
         - `soda-core-duckdb`: For DuckDB data adapter in Soda.
         - `duckdb`: For in-memory database in Soda.
@@ -30,7 +29,7 @@ Along with this, it also has additional checks on transform steps done later in 
         - `pandas`: For Pandas DataFrame conversion in Soda.
         - `jinja2`: For displaying Soda reports in HTML files.
         - `python-dotenv`: For fetching environment variables.
-        - `sqlalchemy`: For interactions with PostgreSQL database.
+        - `sqlalchemy`: For PostgreSQL interactions.
         - `psycopg2-binary`: For driving the PostgreSQL engine.
 - PostgreSQL (database and user set up)
 
@@ -80,14 +79,22 @@ Healthy:
 python src/main.py --mode clean
 ```
 
-Unhealthy (inserts incorrect location for bike stations):
+Unhealthy (Early raw data schema failure):
 ```
-python src/main.py --mode faulty
+python src/main.py --mode faulty --fault-type schema
 ```
 
 Run with Soda Core checks (raw + transformed data):
+
+Healthy:
 ```
 python src/main.py --mode clean --soda
 ```
+
+Unhealthy (Wrong data type and extra duplicate row):
+```
+python src/main.py --mode faulty --fault-type transform --soda
+```
+
 - **Raw checks** (`validation/soda_checks_raw.yml`): row count, missing values, non-negative counts, schema.
 - **Transformed checks** (`validation/soda_checks_transformed.yml`): same plus no nulls in derived columns (`total_docks`, `availability_pct`), availability in 0–100%, no duplicate stations. Use this to confirm the data has been successfully transformed.

@@ -2,12 +2,10 @@
 Pipeline breaker logic: halts the pipeline when data fails the expected schema.
 """
 import polars as pl
-
 from pandera.errors import SchemaErrors
-
 from validation.citybikes_schema import CityBikeSchema
 
-def run_pipeline(df: pl.DataFrame) -> None:
+def run_schema_checks(df: pl.DataFrame) -> None:
     """Validate df against CityBikeSchema; exit on failure."""
     try:
         print("Validating Data Quality...")

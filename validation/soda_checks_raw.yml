@@ -1,5 +1,6 @@
 # SodaCL checks for CityBikes data (external monitoring).
 # Use with soda-core.
+# Run after ingesting API data to verify the data is valid.
 
 checks for citybikes_raw:
   - row_count > 0
