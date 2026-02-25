@@ -37,9 +37,9 @@ checks for citybikes_transformed:
         when wrong column type:
           total_docks: integer
   - schema:
-      name: Schema - availability_pct (double)
+      name: Schema - availability_pct (integer)
       warn:
         when wrong column type:
-          availability_pct: double
+          availability_pct: integer
   - duplicate_count(name, latitude, longitude) = 0:
       name: No duplicate stations after transform

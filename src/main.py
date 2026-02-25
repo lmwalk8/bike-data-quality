@@ -64,6 +64,7 @@ def main():
     elif args.mode == "faulty":
         if args.fault_type == "schema":
             data = fetch_citybike_data()
+            # Set the latitude value to 39, which is outside the allowed range
             data = data.with_columns(pl.lit(39).alias("latitude").cast(pl.Float64))
             run_schema_checks(data)
         elif args.fault_type == "transform":
@@ -74,9 +75,7 @@ def main():
                 if rc != 0:
                     raise SystemExit(f"Soda raw-data checks failed (exit code {rc}).")
             transformed_data = transform(data)
-            transformed_data = transformed_data.with_columns(
-                pl.lit(39).alias("availability_pct").cast(pl.Int64)
-            )
+            # Add a row with complete duplicate values of another
             transformed_data = transformed_data.extend(
                 pl.DataFrame({
                     "name": ["699 Mt Auburn St"],
@@ -87,6 +86,10 @@ def main():
                     "total_docks": [25],
                     "availability_pct": [84],
                 })
+            )
+            # Set the total_docks value to 39.5
+            transformed_data = transformed_data.with_columns(
+                pl.lit(39.5).alias("total_docks")
             )
             if args.soda:
                 rc = monitor_transformed_data(transformed_data)

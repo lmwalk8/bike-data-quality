@@ -50,7 +50,11 @@ def transform(df: pl.DataFrame) -> pl.DataFrame:
     df = df.with_columns(
         ((pl.col("free_bikes") / pl.col("total_docks")) * 100).alias("availability_pct")
     )
-    
+    # Convert availability_pct to integer
+    df = df.with_columns(
+        pl.col("availability_pct").cast(pl.Int64).alias("availability_pct")
+    )
+
     # Sorting by name
     df = df.sort("name", descending=False)
 
@@ -59,8 +63,8 @@ def transform(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 def round_up_to_decimals(col_name: str, decimals: int):
-    """Round up a column to a specified number of decimals."""
+    """Round up a column to a specified number of decimals, then round to that many decimals to avoid float noise (e.g. 42.364664999999995)."""
     shift_expr = pl.col(col_name) * (10**decimals)
     rounded_shifted = shift_expr.ceil()
-    result_expr = rounded_shifted / (10**decimals)
+    result_expr = (rounded_shifted / (10**decimals)).round(decimals)
     return result_expr.alias(f"{col_name}_rounded")

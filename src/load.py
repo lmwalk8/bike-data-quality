@@ -11,6 +11,12 @@ def load_data_into_database(df: pl.DataFrame, database_url: str) -> None:
     """
     print("Loading processed data into PostgreSQL database table...")
     try:
+        # Round lat/long/ to 6 decimals before write so DB gets clean values (avoids float noise in Docker vs local)
+        if "latitude" in df.columns and "longitude" in df.columns:
+            df = df.with_columns(
+                pl.col("latitude").round(6),
+                pl.col("longitude").round(6),
+            )
         engine = create_engine(database_url)
         df.write_database(
             table_name="citybikes_data",

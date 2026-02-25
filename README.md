@@ -98,3 +98,32 @@ python src/main.py --mode faulty --fault-type transform --soda
 
 - **Raw checks** (`validation/soda_checks_raw.yml`): row count, missing values, non-negative counts, schema.
 - **Transformed checks** (`validation/soda_checks_transformed.yml`): same plus no nulls in derived columns (`total_docks`, `availability_pct`), availability in 0–100%, no duplicate stations. Use this to confirm the data has been successfully transformed.
+
+## Run with Docker
+
+Build the image from the project root:
+
+```bash
+docker build -t bike-data-quality .
+```
+
+Run the pipeline. Pass `DATABASE_URL` with `-e`; use `host.docker.internal` as the host so the container can reach PostgreSQL on your machine (inside the container, `localhost` is the container itself). Replace `USER`, `PASS`, and `DBNAME` with your credentials:
+
+```bash
+docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode clean
+```
+
+With Soda or faulty mode:
+
+```bash
+docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode clean --soda
+docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode faulty --fault-type schema
+```
+
+To persist Soda reports, mount the reports directory:
+
+```bash
+docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" -v "$(pwd)/reports:/app/reports" bike-data-quality --mode clean --soda
+```
+
+On Linux, add `--add-host=host.docker.internal:host-gateway` if `host.docker.internal` is not available. To use a file instead of `-e`, create e.g. `.env.docker` with `DATABASE_URL=postgresql://...@host.docker.internal:5432/...` and run with `--env-file .env.docker`.
