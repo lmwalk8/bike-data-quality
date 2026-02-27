@@ -28,3 +28,4 @@ dependencies:
     - python-dotenv>=1.0.0,<2   # Environment variables
     - sqlalchemy>=2.0.0         # PostgreSQL interactions
     - psycopg2-binary>=2.9.5    # PostgreSQL driver
+    - pytest>=8.0.0             # Tests

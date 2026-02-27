@@ -33,6 +33,7 @@ Along with this, it also has additional checks on transform steps done later in 
         - `python-dotenv`: For fetching environment variables.
         - `sqlalchemy`: For PostgreSQL interactions.
         - `psycopg2-binary`: For driving the PostgreSQL engine.
+        - `pytest`: For running unit tests (optional if not interested in using these tests)
 - PostgreSQL (database and user set up)
 - (Optional) Docker
     - To run all options of the application in simpler commands
