@@ -9,7 +9,9 @@ Instead of an ETL pipeline failing silently or bringing bad data further into th
 - `Halts execution based on the data schema`: A strict set of rules is defined that the data must satisfy to proceed. This helps to prevent corrupted or illogical data from reaching further steps in the pipeline (e.g production database).
 - `Intercepts schema drift`: Automatically detects when upstream APIs (or other similar data sources) change their structure.
 
-Along with this, it also has additional checks on transform steps done later in the pipeline (after it is confirmed the raw data fits the schema). Using Soda Core in Python, it confirms the data is now cleaned and processed in all the expected ways defined during the transformation. All checks in Soda are written into an HTML report with color-coated outcomes (green=pass, red=fail, yellow=warning).
+Along with this, it also has additional checks on transform steps done later in the pipeline (after it is confirmed the raw data fits the schema). Using Soda Core in Python, it confirms the data is now cleaned and processed in all the expected ways defined during the transformation. All checks in Soda are written into an HTML report with color-coated outcomes (green=pass, red=fail, yellow=warning). These checks help to:
+
+- `Avoid incorrect data in production`: If data is improperly transformed, this stops it from getting loaded into its production location (e.g PostgreSQL database, etc.) that is expecting the data to be cleaned in a specific way.
 
 ## Technical Stack (Prerequisites to Run Project):
 
@@ -32,10 +34,12 @@ Along with this, it also has additional checks on transform steps done later in 
         - `sqlalchemy`: For PostgreSQL interactions.
         - `psycopg2-binary`: For driving the PostgreSQL engine.
 - PostgreSQL (database and user set up)
+- (Optional) Docker
+    - To run all options of the application in simpler commands
 
 ## Steps for Project Setup:
 
-1. Install/create project dependencies if applicable (Python, PostgreSQL)
+1. Install/create project dependencies if applicable (Python, PostgreSQL, Docker)
 
 2. Clone this repository:
 ```
@@ -101,29 +105,37 @@ python src/main.py --mode faulty --fault-type transform --soda
 
 ## Run with Docker
 
-Build the image from the project root:
+**Option 1: Makefile shortcuts (recommended)**
 
-```bash
+Set your database URL once, then use short commands:
+```
+export DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME"
+make run-clean                  # Clean pipeline
+make run-clean-soda             # Clean + Soda (reports in ./reports)
+make run-faulty-schema          # Faulty, schema fault
+make run-faulty-transform       # Faulty, transform fault
+make run-faulty-transform-soda  # Faulty, transform + Soda (reports in ./reports)
+make help                       # List all targets
+```
+
+Or create `.env.docker` with Make-compatible content (so you don’t export every time):
+```
+DATABASE_URL := postgresql://USER:PASS@host.docker.internal:5432/DBNAME
+```
+
+Then run `make run-clean`, `make run-clean-soda`, etc. Targets that run Soda mount `./reports` so reports persist on your machine.
+
+**Option 2: Plain docker run**
+
+Build the image:
+```
 docker build -t bike-data-quality .
 ```
 
-Run the pipeline. Pass `DATABASE_URL` with `-e`; use `host.docker.internal` as the host so the container can reach PostgreSQL on your machine (inside the container, `localhost` is the container itself). Replace `USER`, `PASS`, and `DBNAME` with your credentials:
-
-```bash
+Run (use `host.docker.internal` as host so the container can reach PostgreSQL on your machine):
+```
 docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode clean
-```
-
-With Soda or faulty mode:
-
-```bash
-docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode clean --soda
-docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" bike-data-quality --mode faulty --fault-type schema
-```
-
-To persist Soda reports, mount the reports directory:
-
-```bash
 docker run --rm -e DATABASE_URL="postgresql://USER:PASS@host.docker.internal:5432/DBNAME" -v "$(pwd)/reports:/app/reports" bike-data-quality --mode clean --soda
 ```
 
-On Linux, add `--add-host=host.docker.internal:host-gateway` if `host.docker.internal` is not available. To use a file instead of `-e`, create e.g. `.env.docker` with `DATABASE_URL=postgresql://...@host.docker.internal:5432/...` and run with `--env-file .env.docker`.
+On Linux, add `--add-host=host.docker.internal:host-gateway` if needed. For Make, use: `make DOCKER_HOST_EXTRA="--add-host=host.docker.internal:host-gateway" run-clean`.
